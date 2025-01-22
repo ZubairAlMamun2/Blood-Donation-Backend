@@ -48,6 +48,63 @@ const client = new MongoClient(uri, {
             res.send(result)
         })
 
+        app.get("/login/:email", async(req,res)=>{
+            const email=req.params.email
+            // console.log("please delete this user",id)
+            const query = { email: email };
+            const user = await userDB.findOne(query);
+            res.send(user)
+            
+        })
+        app.get("/user/:email", async(req,res)=>{
+            const email=req.params.email
+            // console.log("please delete this user",id)
+            const query = { email: email };
+            const user = await userDB.findOne(query);
+            res.send(user)
+            
+        })
+
+        // app.put("/updateprofile", async (req, res) => {
+        //     try {
+        //       const { email, name, avatar, selecteddistrict, selectedupazila, bloodGroup } = req.body;
+          
+        //       const updatedUser = await userDB.findOneAndUpdate(
+        //         { email }, // Find user by email
+        //         { name, avatar, selecteddistrict, selectedupazila, bloodGroup }, // Update these fields
+        //         { new: true } // Return the updated document
+        //       );
+          
+        //       if (!updatedUser) {
+        //         return res.status(404).send({ error: "User not found" });
+        //       }
+          
+        //       res.send(updatedUser);
+        //     } catch (error) {
+        //       res.status(500).send({ error: "Internal Server Error" });
+        //     }
+        //   });
+
+          app.put("/updateprofile/:id", async(req,res)=>{
+            const id=req.params.id
+            const user=req.body
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                  name:user.name,
+                  avatar:user.photo,
+                  selecteddistrict:user.selecteddistrict,
+                  selectedupazila:user.selectedupazila,
+                  bloodGroup:user.bloodGroup
+                },
+              };
+            // console.log("please update this user",id,updateuser)
+            const result = await userDB.updateOne(filter, updateDoc, options);
+            res.send(result)
+        })
+          
+
 
 
       // Connect the client to the server	(optional starting in v4.7)
