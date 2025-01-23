@@ -47,10 +47,23 @@ const client = new MongoClient(uri, {
             const result = await donationDB.insertOne(donation);
             res.send(result)
         })
+        app.get("/mydonation",async(req,res)=>{
+            const cursor = donationDB.find({});
+            const allValues = await cursor.toArray();
+            // console.log('cookies',req.cookies)
+            res.send(allValues)
+        })
+        app.get("/donation/:id",async(req,res)=>{
+            const id=req.params.id
+        // console.log("please delete  this user",id)
+        const query = { _id: new ObjectId(id) };
+        const donation = await donationDB.findOne(query);
+        res.send(donation)
+        })
 
         app.get("/login/:email", async(req,res)=>{
             const email=req.params.email
-            // console.log("please delete this user",id)
+            // console.log("please  delete this user",id)
             const query = { email: email };
             const user = await userDB.findOne(query);
             res.send(user)
@@ -85,25 +98,42 @@ const client = new MongoClient(uri, {
         //     }
         //   });
 
-          app.put("/updateprofile/:id", async(req,res)=>{
-            const id=req.params.id
-            const user=req.body
-            const filter = { _id: new ObjectId(id) };
-            const options = { upsert: true };
-            const updateDoc = {
-                $set: {
-                  name:user.name,
-                  avatar:user.photo,
-                  selecteddistrict:user.selecteddistrict,
-                  selectedupazila:user.selectedupazila,
-                  bloodGroup:user.bloodGroup
-                },
-              };
-            // console.log("please update this user",id,updateuser)
-            const result = await userDB.updateOne(filter, updateDoc, options);
-            res.send(result)
-        })
-          
+        
+        app.put("/updatedonation/:id", async(req,res)=>{
+          const id=req.params.id
+          const donation=req.body
+          const filter = { _id: new ObjectId(id) };
+          const options = { upsert: true };
+          const updateDoc = {
+              $set: {
+                requesterName:donation.requesterName,
+                recipientName:donation.recipientName,
+                hospitalName:donation.hospitalName,
+                address:donation.address,
+                date:donation.date,
+                time:donation.time,
+                requestMessage:donation.requestMessage,
+                currentDate:donation.currentDate,
+                bloodGroup:donation.bloodGroup,
+                selecteddistrict:donation.selecteddistrict,
+                selectedupazila:donation.selectedupazila,
+                donationStatus:donation.donationStatus,
+              },
+            };
+          // console.log("please update this user",id,updateuser)
+          const result = await donationDB.updateOne(filter, updateDoc, options);
+          res.send(result)
+      })
+
+      app.delete("/deleterequest/:id",async(req,res)=>{
+        const id=req.params.id
+        // console.log("please delete this user",id)
+        const query = { _id: new ObjectId(id) };
+        const deleteResult = await donationDB.deleteOne(query);
+
+        res.send(deleteResult)
+        
+    })
 
 
 
