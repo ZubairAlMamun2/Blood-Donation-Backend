@@ -53,6 +53,12 @@ const client = new MongoClient(uri, {
             // console.log('cookies',req.cookies)
             res.send(allValues)
         })
+        app.get("/all-user",async(req,res)=>{
+            const cursor = userDB.find({});
+            const allValues = await cursor.toArray();
+            // console.log('cookies',req.cookies)
+            res.send(allValues)
+        })
         app.get("/donation/:id",async(req,res)=>{
             const id=req.params.id
         // console.log("please delete  this user",id)
@@ -78,25 +84,55 @@ const client = new MongoClient(uri, {
             
         })
 
-        // app.put("/updateprofile", async (req, res) => {
-        //     try {
-        //       const { email, name, avatar, selecteddistrict, selectedupazila, bloodGroup } = req.body;
+        app.put("/updatestatus/:id", async (req, res) => {
+            const id=req.params.id
+              const { status } = req.body;
+              const filter = { _id: new ObjectId(id) };
+              const options = { upsert: true };
+              const updateDoc = {
+                $set: {
+                    status:status,
+                },
+              };
+              const result = await userDB.updateOne(filter, updateDoc, options);
+                 res.send(result)
+          });
+        app.put("/updaterole/:id", async (req, res) => {
+            const id=req.params.id
+              const { role } = req.body;
+              const filter = { _id: new ObjectId(id) };
+              const options = { upsert: true };
+              const updateDoc = {
+                $set: {
+                    role:role,
+                },
+              };
+              const result = await userDB.updateOne(filter, updateDoc, options);
+                 res.send(result)
+          });
+
           
-        //       const updatedUser = await userDB.findOneAndUpdate(
-        //         { email }, // Find user by email
-        //         { name, avatar, selecteddistrict, selectedupazila, bloodGroup }, // Update these fields
-        //         { new: true } // Return the updated document
-        //       );
+        app.put("/updateprofile/:id", async (req, res) => {
+            const id=req.params.id
+              const { name, photo, selecteddistrict, selectedupazila, bloodGroup } = req.body;
+              const filter = { _id: new ObjectId(id) };
+              const options = { upsert: true };
+              const updateDoc = {
+                $set: {
+                    name:name,
+                    photo:photo,
+                    selecteddistrict:selecteddistrict,
+                    selectedupazila:selectedupazila,
+                    bloodGroup:bloodGroup,
+                 
+                },
+              };
+              
           
-        //       if (!updatedUser) {
-        //         return res.status(404).send({ error: "User not found" });
-        //       }
-          
-        //       res.send(updatedUser);
-        //     } catch (error) {
-        //       res.status(500).send({ error: "Internal Server Error" });
-        //     }
-        //   });
+              const result = await userDB.updateOne(filter, updateDoc, options);
+                 res.send(result)
+            
+          });
 
         
         app.put("/updatedonation/:id", async(req,res)=>{
@@ -113,7 +149,7 @@ const client = new MongoClient(uri, {
                 date:donation.date,
                 time:donation.time,
                 requestMessage:donation.requestMessage,
-                currentDate:donation.currentDate,
+               
                 bloodGroup:donation.bloodGroup,
                 selecteddistrict:donation.selecteddistrict,
                 selectedupazila:donation.selectedupazila,
