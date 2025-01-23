@@ -33,12 +33,19 @@ const client = new MongoClient(uri, {
 
         const userDB = client.db("userDB").collection("users");
         const donationDB = client.db("userDB").collection("donation");
+        const blogsDB = client.db("userDB").collection("blogs");
 
 
         app.post("/addnewuser",async(req,res)=>{
             const user =req.body;
             console.log(user)
             const result = await userDB.insertOne(user);
+            res.send(result)
+        })
+        app.post("/addnewblog",async(req,res)=>{
+            const blog =req.body;
+            console.log(blog)
+            const result = await blogsDB.insertOne(blog);
             res.send(result)
         })
         app.post("/createnewdonationrequest",async(req,res)=>{
@@ -59,6 +66,12 @@ const client = new MongoClient(uri, {
             // console.log('cookies',req.cookies)
             res.send(allValues)
         })
+        app.get("/all-blog",async(req,res)=>{
+            const cursor = blogsDB.find({});
+            const allValues = await cursor.toArray();
+            // console.log('cookies',req.cookies)
+            res.send(allValues)
+        })
         app.get("/donation/:id",async(req,res)=>{
             const id=req.params.id
         // console.log("please delete  this user",id)
@@ -66,7 +79,6 @@ const client = new MongoClient(uri, {
         const donation = await donationDB.findOne(query);
         res.send(donation)
         })
-
         app.get("/login/:email", async(req,res)=>{
             const email=req.params.email
             // console.log("please  delete this user",id)
@@ -83,7 +95,19 @@ const client = new MongoClient(uri, {
             res.send(user)
             
         })
-
+        app.put("/updateblogstatus/:id", async (req, res) => {
+            const id=req.params.id
+              const { status } = req.body;
+              const filter = { _id: new ObjectId(id) };
+              const options = { upsert: true };
+              const updateDoc = {
+                $set: {
+                    status:status,
+                },
+              };
+              const result = await blogsDB.updateOne(filter, updateDoc, options);
+                 res.send(result)
+          });
         app.put("/updatestatus/:id", async (req, res) => {
             const id=req.params.id
               const { status } = req.body;
@@ -163,12 +187,15 @@ const client = new MongoClient(uri, {
 
       app.delete("/deleterequest/:id",async(req,res)=>{
         const id=req.params.id
-        // console.log("please delete this user",id)
         const query = { _id: new ObjectId(id) };
         const deleteResult = await donationDB.deleteOne(query);
-
         res.send(deleteResult)
-        
+    })
+      app.delete("/deleteblog/:id",async(req,res)=>{
+        const id=req.params.id
+        const query = { _id: new ObjectId(id) };
+        const deleteResult = await blogsDB.deleteOne(query);
+        res.send(deleteResult)
     })
 
 
