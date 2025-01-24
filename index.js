@@ -184,6 +184,22 @@ const client = new MongoClient(uri, {
           const result = await donationDB.updateOne(filter, updateDoc, options);
           res.send(result)
       })
+        app.put("/donate/:id", async(req,res)=>{
+          const id=req.params.id
+          const donation=req.body
+          const filter = { _id: new ObjectId(id) };
+          const options = { upsert: true };
+          const updateDoc = {
+              $set: {
+                donorName:donation.donorName,
+                donorEmail:donation.donorEmail,
+                donationStatus:donation.donationStatus,
+              },
+            };
+          // console.log("please update this user",id,updateuser)
+          const result = await donationDB.updateOne(filter, updateDoc, options);
+          res.send(result)
+      })
 
       app.delete("/deleterequest/:id",async(req,res)=>{
         const id=req.params.id
@@ -200,7 +216,7 @@ const client = new MongoClient(uri, {
 
 
 
-      // Connect the client to the server	(optional starting in v4.7)
+      // Connect the client to the serve	(optional starting in v4.7)
     //   await client.connect();
       // Send a ping to confirm a successful connection
       await client.db("admin").command({ ping: 1 });
