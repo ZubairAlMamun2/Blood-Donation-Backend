@@ -79,6 +79,13 @@ const client = new MongoClient(uri, {
         const donation = await donationDB.findOne(query);
         res.send(donation)
         })
+        app.get("/blog/:id",async(req,res)=>{
+            const id=req.params.id
+        // console.log("please delete  this user",id)
+        const query = { _id: new ObjectId(id) };
+        const donation = await blogsDB.findOne(query);
+        res.send(donation)
+        })
         app.get("/login/:email", async(req,res)=>{
             const email=req.params.email
             // console.log("please  delete this user",id)
@@ -200,6 +207,20 @@ const client = new MongoClient(uri, {
           const result = await donationDB.updateOne(filter, updateDoc, options);
           res.send(result)
       })
+        app.put("/changedonatestatus/:id", async(req,res)=>{
+          const id=req.params.id
+          const donation=req.body
+          const filter = { _id: new ObjectId(id) };
+          const options = { upsert: true };
+          const updateDoc = {
+              $set: {
+                donationStatus:donation.donationStatus,
+              },
+            };
+          // console.log("please update this user" ,id,updateuser)
+          const result = await donationDB.updateOne(filter, updateDoc, options);
+          res.send(result)
+      })
 
       app.delete("/deleterequest/:id",async(req,res)=>{
         const id=req.params.id
@@ -216,7 +237,7 @@ const client = new MongoClient(uri, {
 
 
 
-      // Connect the client to the serve	(optional starting in v4.7)
+      // Connect the client to the serve            	(optional starting in v4.7)
     //   await client.connect();
       // Send a ping to confirm a successful connection
       await client.db("admin").command({ ping: 1 });
