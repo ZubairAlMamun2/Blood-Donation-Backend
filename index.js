@@ -53,6 +53,12 @@ const client = new MongoClient(uri, {
         const blogsDB = client.db("userDB").collection("blogs");
          const fundsDB = client.db("userDB").collection("funds");
 
+
+         
+
+
+
+
         app.post('/jwt',async(req,res)=>{
             const user=req.body;
             const token=jwt.sign(user,process.env.JWT_SECRET,{expiresIn:'1h'})
@@ -70,6 +76,12 @@ const client = new MongoClient(uri, {
             const user =req.body;
             console.log(user)
             const result = await userDB.insertOne(user);
+            res.send(result)
+        })
+        app.post("/payment",async(req,res)=>{
+            const user =req.body;
+            console.log(user)
+            const result = await fundsDB.insertOne(user);
             res.send(result)
         })
         app.post("/addnewblog",async(req,res)=>{
@@ -92,6 +104,12 @@ const client = new MongoClient(uri, {
         })
         app.get("/all-user",async(req,res)=>{
             const cursor = userDB.find({});
+            const allValues = await cursor.toArray();
+            // console.log('cookies',req.cookies)
+            res.send(allValues)
+        })
+        app.get("/totalfunds",async(req,res)=>{
+            const cursor = fundsDB.find({});
             const allValues = await cursor.toArray();
             // console.log('cookies',req.cookies)
             res.send(allValues)
