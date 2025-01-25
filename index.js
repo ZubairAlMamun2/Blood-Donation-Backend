@@ -10,12 +10,29 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 app.use(cors({
-    origin: ['http://localhost:5173','https://academicelit.netlify.app','https://donate-for-people.firebaseapp.com','https://donate-for-people.web.app'], // Allow requests from this frontend
+    origin: ['http://localhost:5173'], // Allow requests from this frontend
     credentials: true, // Allow cookies and authentication headers
   }));
 // app.use(cors())
 app.use(express.json());
 app.use(cookieParser());
+
+const verifyToken = (req, res, next) => {
+    const token=req?.cookies?.token
+    // console.log('This is token',{token})
+    if (!token) {
+        return res.status(401).send({ message: 'unauthorized access' });
+    }
+
+    // verify the token
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(401).send({ message: 'unauthorized access' });
+        }
+        req.user = decoded;
+        next();
+    })
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ispqqvs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -34,7 +51,20 @@ const client = new MongoClient(uri, {
         const userDB = client.db("userDB").collection("users");
         const donationDB = client.db("userDB").collection("donation");
         const blogsDB = client.db("userDB").collection("blogs");
+         const fundsDB = client.db("userDB").collection("funds");
 
+        app.post('/jwt',async(req,res)=>{
+            const user=req.body;
+            const token=jwt.sign(user,process.env.JWT_SECRET,{expiresIn:'1h'})
+            // console.log('tis is dskdl',token )
+            res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === "production",
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", });
+            res.send({success:true});
+        })
+        app.post('/logout',(req,res)=>{
+            res.clearCookie('token',  { httpOnly: true, secure:false });
+            res.send({success:true});
+        })
 
         app.post("/addnewuser",async(req,res)=>{
             const user =req.body;
