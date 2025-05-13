@@ -13,7 +13,7 @@ app.use(cors({
     origin: ['http://localhost:5173','https://bloooddonate-1971.netlify.app'], // Allow requests from this frontend
     credentials: true, // Allow cookies and authentication headers
   }));
-// app.use(cors())
+// app.use(cors()
 app.use(express.json());
 app.use(cookieParser());
 
